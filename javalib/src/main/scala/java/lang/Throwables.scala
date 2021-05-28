@@ -67,10 +67,11 @@ class Throwable protected (s: String,
 
   def this(e: Throwable) = this(if (e == null) null else e.toString, e)
 
-  private[this] var stackTrace: Array[StackTraceElement] = _
+  private[this] var stackTrace: Array[StackTraceElement] = //_
+    new Array[StackTraceElement](0)
 
-  if (writableStackTrace)
-    fillInStackTrace()
+  // if (writableStackTrace)
+  //   fillInStackTrace()
 
   // We use an Array rather than, say, a List, so that Throwable does not
   // depend on the Scala collections.
@@ -104,7 +105,7 @@ class Throwable protected (s: String,
     // currentStackTrace should be handling exclusion in its own
     // critical section, but does not. So do
     if (writableStackTrace) this.synchronized {
-      this.stackTrace = StackTrace.currentStackTrace()
+      //this.stackTrace = StackTrace.currentStackTrace()
     }
     this
   }
