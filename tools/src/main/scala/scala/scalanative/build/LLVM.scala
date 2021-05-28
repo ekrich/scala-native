@@ -8,6 +8,7 @@ import scalanative.compat.CompatParColls.Converters._
 
 /** Internal utilities to interact with LLVM command-line tools. */
 private[scalanative] object LLVM {
+  private val asanSettings = Seq("-fsanitize=address", "-fno-omit-frame-pointer")
 
   /** Object file extension: ".o" */
   val oExt = ".o"
@@ -44,7 +45,7 @@ private[scalanative] object LLVM {
           else if (isCpp) Seq("-std=c++11")
           else Seq("-std=gnu11")
         val flags = opt(config) +: stdflag ++: "-fvisibility=hidden" +:
-          config.compileOptions
+          config.compileOptions ++: asanSettings
         val compilec =
           Seq(compiler) ++ flto(config) ++ flags ++ target(config) ++
             Seq("-c", inpath, "-o", outpath)
@@ -83,7 +84,7 @@ private[scalanative] object LLVM {
       // * libpthread for process APIs and parallel garbage collection.
       "pthread" +: "dl" +: srclinks ++: gclinks
     }
-    val linkopts = config.linkingOptions ++ links.map("-l" + _)
+    val linkopts = config.linkingOptions ++ links.map("-l" + _) ++ asanSettings
     val flags =
       flto(config) ++ Seq("-rdynamic", "-o", outpath.abs) ++ target(config)
     val paths   = objectsPaths.map(_.abs)
