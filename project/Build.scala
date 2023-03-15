@@ -22,7 +22,7 @@ object Build {
 // format: off
   lazy val compilerPlugins =  List(nscPlugin, junitPlugin)
   lazy val publishedMultiScalaProjects = compilerPlugins ++ List(
-    nir, util, tools,
+    nirJVM, utilJVM, toolsJVM,
     nativelib, clib, posixlib, windowslib,
     auxlib, javalib, scalalib,
     testInterface, testInterfaceSbtDefs, testRunner,
@@ -115,21 +115,21 @@ object Build {
         case (2, _) => Seq("-Xno-patmat-analysis")
       }
     )
-    .dependsOnSource(nir)
-    .dependsOnSource(util)
+    .dependsOnSource(nirJVM)
+    .dependsOnSource(utilJVM)
 
   lazy val junitPlugin = MultiScalaProject("junitPlugin", file("junit-plugin"))
     .settings(compilerPluginSettings)
 
   // NIR compiler
-  lazy val util = MultiScalaProject("util")
+  lazy val utilJVM = MultiScalaProject("utilJVM", file("util/jvm"))
     .settings(toolSettings, mavenPublishSettings)
 
-  lazy val nir = MultiScalaProject("nir")
+  lazy val nirJVM = MultiScalaProject("nirJVM", file("nir/jvm"))
     .settings(toolSettings, mavenPublishSettings)
-    .dependsOn(util)
+    .dependsOn(utilJVM)
 
-  lazy val tools = MultiScalaProject("tools")
+  lazy val toolsJVM = MultiScalaProject("toolsJVM", file("tools/jvm"))
     .enablePlugins(BuildInfoPlugin)
     .settings(toolSettings, mavenPublishSettings, buildInfoSettings)
     .settings(
@@ -175,7 +175,7 @@ object Build {
           )
         },
     }
-    .dependsOn(nir, util, testingCompilerInterface % "test")
+    .dependsOn(nirJVM, utilJVM, testingCompilerInterface % "test")
 
   lazy val sbtScalaNative: Project =
     project
@@ -234,9 +234,9 @@ object Build {
                     testInterface.forBinaryVersion(ver) / publishLocal,
                     junitRuntime.forBinaryVersion(ver) / publishLocal,
                     // JVM libraries
-                    util.forBinaryVersion(ver) / publishLocal,
-                    nir.forBinaryVersion(ver) / publishLocal,
-                    tools.forBinaryVersion(ver) / publishLocal,
+                    utilJVM.forBinaryVersion(ver) / publishLocal,
+                    nirJVM.forBinaryVersion(ver) / publishLocal,
+                    toolsJVM.forBinaryVersion(ver) / publishLocal,
                     testRunner.forBinaryVersion(ver) / publishLocal
                   )
               }
@@ -251,7 +251,7 @@ object Build {
             .value
         }
       )
-      .dependsOn(tools.v2_12, testRunner.v2_12)
+      .dependsOn(toolsJVM.v2_12, testRunner.v2_12)
 
 // Native moduels ------------------------------------------------
   lazy val nativelib =
@@ -515,7 +515,7 @@ object Build {
         testInterfaceCommonSourcesSettings,
         libraryDependencies ++= Deps.TestRunner
       )
-      .dependsOn(tools, junitAsyncJVM % "test")
+      .dependsOn(toolsJVM, junitAsyncJVM % "test")
 
 // JUnit modules ------------------------------------------------
   lazy val junitRuntime =
@@ -623,7 +623,7 @@ object Build {
           else (Compile / sources).value
         }
       )
-      .dependsOn(nscPlugin, tools)
+      .dependsOn(nscPlugin, toolsJVM)
 
   lazy val scalaPartestTests =
     MultiScalaProject("scalaPartestTests", file("scala-partest-tests"))
