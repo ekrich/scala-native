@@ -52,7 +52,7 @@ object ScalaNativePluginInternal {
     lazy val scalaNativeDependencySettings: Seq[Setting[_]] = {
       val organization = "org.scala-native"
       val nativeStandardLibraries =
-        Seq("nativelib", "clib", "posixlib", "windowslib", "javalib", "auxlib")
+        Seq("nativelib", "clib", "gclib", "posixlib", "windowslib", "javalib", "auxlib")
 
       Seq(
         libraryDependencies ++= Seq(
